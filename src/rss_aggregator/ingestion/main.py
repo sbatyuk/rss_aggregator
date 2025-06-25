@@ -1,7 +1,7 @@
 import asyncio
 
 from rss_aggregator.ingestion import pipeline
-from rss_aggregator.util.logging import setup_logging
+from rss_aggregator.logging import setup_logging
 
 
 async def main():
