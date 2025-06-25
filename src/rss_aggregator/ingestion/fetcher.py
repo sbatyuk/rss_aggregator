@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Optional
 
 import feedparser
 import httpx
@@ -21,7 +20,7 @@ async def fetch_all_feeds():
     return results
 
 
-async def fetch_feed(client: httpx.AsyncClient, feed: Feed) -> tuple[str, Optional[feedparser.FeedParserDict]]:
+async def fetch_feed(client: httpx.AsyncClient, feed: Feed) -> tuple[str, feedparser.FeedParserDict | None]:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = await client.get(str(feed.url))
