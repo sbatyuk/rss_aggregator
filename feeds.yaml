@@ -1,0 +1,11 @@
+feeds:
+  - id: techcrunch
+    url: https://techcrunch.com/feed/
+  - id: wired
+    url: https://www.wired.com/feed/rss
+  - id: the-verge
+    url: https://www.theverge.com/rss/index.xml
+  - id: ars-technica
+    url: https://feeds.arstechnica.com/arstechnica/index
+  - id: bbc-world-news
+    url: https://feeds.bbci.co.uk/news/world/rss.xml
