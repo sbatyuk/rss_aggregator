@@ -1,0 +1,22 @@
+[project]
+name = "rss-aggregator"
+version = "0.1.0"
+description = "RSS Aggregator"
+readme = "README.md"
+authors = [
+    { name = "Serhiy Batyuk", email = "sbatyuk@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+rss-aggregator = "rss_aggregator:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.0",
+]
