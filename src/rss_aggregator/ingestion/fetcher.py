@@ -4,10 +4,8 @@ import logging
 import feedparser
 import httpx
 
+from rss_aggregator.config import settings
 from rss_aggregator.models import Feed, FEEDS
-
-MAX_RETRIES = 3
-RETRY_DELAY = 2  # seconds
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +19,7 @@ async def fetch_all_feeds():
 
 
 async def fetch_feed(client: httpx.AsyncClient, feed: Feed) -> tuple[str, feedparser.FeedParserDict | None]:
-    for attempt in range(1, MAX_RETRIES + 1):
+    for attempt in range(1, settings.fetch_max_retries + 1):
         try:
             response = await client.get(str(feed.url))
             response.raise_for_status()
@@ -40,8 +38,8 @@ async def fetch_feed(client: httpx.AsyncClient, feed: Feed) -> tuple[str, feedpa
             logger.error(f"[{feed.id}] Fatal error: {e}")
             break
 
-        if attempt < MAX_RETRIES:
-            await asyncio.sleep(RETRY_DELAY)
+        if attempt < settings.fetch_max_retries:
+            await asyncio.sleep(settings.fetch_retry_delay_seconds)
 
     logger.error(f"[{feed.id}] All fetch attempts failed.")
     return feed.id, None
