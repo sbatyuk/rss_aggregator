@@ -1,7 +1,7 @@
 import logging
 
 from feedparser import FeedParserDict
-from rss_aggregator.core.feed_entry import FeedEntry
+from rss_aggregator.models import FeedEntry
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,9 @@
+from datetime import datetime
 from pathlib import Path
 
 import yaml
 from pydantic import BaseModel, HttpUrl
+from sqlmodel import SQLModel, Field
 
 
 class Feed(BaseModel):
@@ -16,3 +18,12 @@ def load_feeds(path: Path = Path("feeds.yaml")) -> list[Feed]:
 
 
 FEEDS = load_feeds()
+
+
+class FeedEntry(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    feed_id: str
+    title: str
+    url: str
+    published_at: datetime
+    summary: str | None

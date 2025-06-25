@@ -4,7 +4,7 @@ import logging
 import feedparser
 import httpx
 
-from rss_aggregator.core.feed import Feed, FEEDS
+from rss_aggregator.models import Feed, FEEDS
 
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
