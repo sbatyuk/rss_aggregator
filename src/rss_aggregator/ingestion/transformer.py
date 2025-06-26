@@ -1,6 +1,10 @@
+import calendar
+import datetime
 import logging
+import time
 
 from feedparser import FeedParserDict
+
 from rss_aggregator.models import FeedEntry
 
 logger = logging.getLogger(__name__)
@@ -27,6 +31,10 @@ def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
         feed_id=feed_id,
         title=raw_entry.title,
         url=raw_entry.link,
-        published_at=raw_entry.published_parsed,
+        published_at=struct_time_to_datetime(raw_entry.published_parsed),
         summary=raw_entry.summary
     )
+
+
+def struct_time_to_datetime(struct_time: time.struct_time) -> datetime:
+    return datetime.datetime.fromtimestamp(calendar.timegm(struct_time), datetime.UTC)
