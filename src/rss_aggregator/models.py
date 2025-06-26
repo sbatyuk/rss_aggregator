@@ -26,6 +26,6 @@ class FeedEntry(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     feed_id: str
     title: str
-    url: str
+    link: str = Field(unique=True)
     published_at: datetime
     summary: str | None

@@ -30,7 +30,7 @@ def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
     return FeedEntry(
         feed_id=feed_id,
         title=raw_entry.title,
-        url=raw_entry.link,
+        link=raw_entry.link,
         published_at=struct_time_to_datetime(raw_entry.published_parsed),
         summary=raw_entry.summary
     )
