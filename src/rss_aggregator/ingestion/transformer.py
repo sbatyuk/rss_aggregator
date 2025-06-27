@@ -4,6 +4,7 @@ import logging
 import time
 
 from feedparser import FeedParserDict
+from slugify import slugify
 from sqlalchemy import select, func
 
 from rss_aggregator.db import SessionLocal
@@ -37,7 +38,8 @@ def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
         title=raw_entry.title,
         link=raw_entry.link,
         published_at=struct_time_to_datetime(raw_entry.published_parsed),
-        summary=raw_entry.summary
+        summary=raw_entry.summary,
+        hashtags=normalize_tags(raw_entry.get('tags', [])),
     )
 
 
@@ -50,5 +52,10 @@ def get_latest_published_at_per_feed() -> dict[str, datetime.datetime]:
         results = session.exec(stmt).all()
         return {feed_id: published_at for feed_id, published_at in results}
 
+
 def struct_time_to_datetime(struct_time: time.struct_time) -> datetime:
     return datetime.datetime.fromtimestamp(calendar.timegm(struct_time), datetime.UTC)
+
+
+def normalize_tags(raw_tags: list[dict]) -> list[str]:
+    return [slugify(tag['term']) for tag in raw_tags if tag.get('term')]
