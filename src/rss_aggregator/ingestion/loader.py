@@ -14,8 +14,11 @@ def save(entries: list[FeedEntry]) -> None:
         return
 
     values = [entry.model_dump(exclude_unset=True) for entry in entries]
-    stmt = pg_insert(FeedEntry).values(values).on_conflict_do_nothing()
+    stmt = pg_insert(FeedEntry).values(values).on_conflict_do_nothing().returning(FeedEntry.id)
 
     with SessionLocal() as session:
-        session.exec(stmt)
+        result = session.exec(stmt)
+        inserted_count = len(result.all())
         session.commit()
+
+    logger.info(f"Inserted {inserted_count} new entries.")

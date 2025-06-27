@@ -3,6 +3,7 @@ from pathlib import Path
 
 import yaml
 from pydantic import BaseModel, HttpUrl
+from sqlalchemy import Column, DateTime, Index
 from sqlmodel import SQLModel, Field
 
 from rss_aggregator.config import FEEDS_PATH
@@ -27,8 +28,12 @@ class FeedEntry(SQLModel, table=True):
     feed_id: str
     title: str
     link: str = Field(unique=True)
-    published_at: datetime
+    published_at: datetime = Field(sa_column=Column(DateTime(timezone=True), index=True, nullable=False))
     summary: str | None
+
+    __table_args__ = (
+        Index('ix_feedentry_feed_id_published_at', 'feed_id', 'published_at'),
+    )
 
 
 class FeedEntriesResponse(BaseModel):
