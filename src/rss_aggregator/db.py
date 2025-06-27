@@ -1,9 +1,16 @@
-from sqlmodel import SQLModel, create_engine
+from typing import Generator
+
 from sqlalchemy.orm import sessionmaker
+from sqlmodel import Session, SQLModel, create_engine
+
 from rss_aggregator.config import settings
 
 engine = create_engine(settings.database_url, echo=False)
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine, class_=Session)
+
+def get_session() -> Generator[Session, None, None]:
+    with SessionLocal() as session:
+        yield session
 
 def init_db() -> None:
     # Required to register models for SQLModel.metadata

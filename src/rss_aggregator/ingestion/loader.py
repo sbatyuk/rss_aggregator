@@ -17,5 +17,5 @@ def save(entries: list[FeedEntry]) -> None:
     stmt = pg_insert(FeedEntry).values(values).on_conflict_do_nothing()
 
     with SessionLocal() as session:
-        session.execute(stmt)
+        session.exec(stmt)
         session.commit()

@@ -29,3 +29,8 @@ class FeedEntry(SQLModel, table=True):
     link: str = Field(unique=True)
     published_at: datetime
     summary: str | None
+
+
+class FeedEntriesResponse(BaseModel):
+    entries: list[FeedEntry]
+    total: int
