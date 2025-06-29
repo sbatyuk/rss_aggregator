@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import html
 import logging
 import time
 
@@ -8,7 +9,7 @@ from slugify import slugify
 from sqlalchemy import select, func
 
 from rss_aggregator.db import SessionLocal
-from rss_aggregator.embedding import embedder
+from rss_aggregator.nlp import embedder, keyword_extractor
 from rss_aggregator.models import FeedEntry
 
 logger = logging.getLogger(__name__)
@@ -40,16 +41,21 @@ def transform(raw_feeds) -> list[FeedEntry]:
 def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
     return FeedEntry(
         feed_id=feed_id,
-        title=raw_entry.title,
+        title=html.unescape(raw_entry.title),
         link=raw_entry.link,
         published_at=struct_time_to_datetime(raw_entry.published_parsed),
-        summary=raw_entry.summary
+        summary=html.unescape(raw_entry.summary)
     )
 
 
 def enrich_feed_entry(raw_entry: FeedParserDict, feed_entry: FeedEntry) -> None:
+    text = f'{feed_entry.title}. {feed_entry.summary}'
+
     feed_entry.hashtags = normalize_tags(raw_entry.get('tags', []))
-    feed_entry.embedding = embedder.encode(f'{feed_entry.title}. {feed_entry.summary}').tolist()
+    if not feed_entry.hashtags:
+        feed_entry.hashtags = generate_tags(text)
+
+    feed_entry.embedding = embedder.encode(text).tolist()
 
 
 def get_latest_published_at_per_feed() -> dict[str, datetime.datetime]:
@@ -68,3 +74,8 @@ def struct_time_to_datetime(struct_time: time.struct_time) -> datetime:
 
 def normalize_tags(raw_tags: list[dict]) -> list[str]:
     return [slugify(tag['term']) for tag in raw_tags if tag.get('term')]
+
+
+def generate_tags(text: str) -> list[str]:
+    keywords = keyword_extractor.extract_keywords(text, top_n=3)
+    return [slugify(kw) for kw, _ in keywords]

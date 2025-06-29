@@ -312,6 +312,21 @@ wheels = [
 ]
 
 [[package]]
+name = "keybert"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "rich" },
+    { name = "scikit-learn" },
+    { name = "sentence-transformers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b7/a8/a73003cc0f6a606eb30c9e19a85b5a89bef076e9adcb642aed29e47c693c/keybert-0.9.0.tar.gz", hash = "sha256:eec8ebd37d3d9fa238d7075e727adb993de4f3ed67c94112840e4cc0e55d7657", size = 32235, upload-time = "2025-02-07T08:45:13.187Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/82/07/e2f42a8ec3ff1935debbf2a5255570d22033fca3fe3180d5af99a6c9ee8c/keybert-0.9.0-py3-none-any.whl", hash = "sha256:afa2f300a72f69d279e4482bc85d8b34493b119876dc0818cb4f260466285b36", size = 41364, upload-time = "2025-02-07T08:45:08.093Z" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -797,6 +812,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "feedparser" },
     { name = "httpx" },
+    { name = "keybert" },
     { name = "pgvector" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
@@ -817,6 +833,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.14" },
     { name = "feedparser", specifier = ">=6.0.11" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "keybert", specifier = ">=0.9.0" },
     { name = "pgvector", specifier = ">=0.4.1" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
     { name = "pydantic", specifier = ">=2.11.7" },
