@@ -8,6 +8,7 @@ from slugify import slugify
 from sqlalchemy import select, func
 
 from rss_aggregator.db import SessionLocal
+from rss_aggregator.embedding import embedder
 from rss_aggregator.models import FeedEntry
 
 logger = logging.getLogger(__name__)
@@ -23,9 +24,13 @@ def transform(raw_feeds) -> list[FeedEntry]:
             continue
 
         for raw_entry in raw_feed.entries:
-            feed_entry = transform_raw_entry(feed_id, raw_entry)
-            if feed_id not in latest_published_at or feed_entry.published_at >= latest_published_at[feed_id]:
-                feed_entries.append(feed_entry)
+            try:
+                feed_entry = transform_raw_entry(feed_id, raw_entry)
+                if feed_id not in latest_published_at or feed_entry.published_at >= latest_published_at[feed_id]:
+                    enrich_feed_entry(raw_entry, feed_entry)
+                    feed_entries.append(feed_entry)
+            except Exception as e:
+                logger.exception(f"Failed to process entry (link={feed_entry.link}) from feed '{feed_id}': {e}")
 
     feed_entries = sorted(feed_entries, key=lambda e: e.published_at)
 
@@ -38,9 +43,13 @@ def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
         title=raw_entry.title,
         link=raw_entry.link,
         published_at=struct_time_to_datetime(raw_entry.published_parsed),
-        summary=raw_entry.summary,
-        hashtags=normalize_tags(raw_entry.get('tags', [])),
+        summary=raw_entry.summary
     )
+
+
+def enrich_feed_entry(raw_entry: FeedParserDict, feed_entry: FeedEntry) -> None:
+    feed_entry.hashtags = normalize_tags(raw_entry.get('tags', []))
+    feed_entry.embedding = embedder.encode(f'{feed_entry.title}. {feed_entry.summary}').tolist()
 
 
 def get_latest_published_at_per_feed() -> dict[str, datetime.datetime]:

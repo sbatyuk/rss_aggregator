@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 import yaml
+from pgvector.sqlalchemy import Vector
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy import Column, DateTime, Index, String
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -32,6 +33,7 @@ class FeedEntry(SQLModel, table=True):
     published_at: datetime = Field(sa_column=Column(DateTime(timezone=True), index=True, nullable=False))
     summary: str
     hashtags: list[str] | None = Field(sa_column=Column(ARRAY(String)))
+    embedding: list[float] | None = Field(sa_column=Column(Vector(384)), exclude=True)
 
     __table_args__ = (
         Index('ix_feedentry_feed_id_published_at', 'feed_id', 'published_at'),

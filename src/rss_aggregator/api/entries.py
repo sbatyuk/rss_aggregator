@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from rss_aggregator.db import get_session
+from rss_aggregator.embedding import embedder
 from rss_aggregator.models import FeedEntry, FeedEntriesResponse
 
 router = APIRouter(prefix='/entries', tags=['entries'])
@@ -16,6 +17,7 @@ def list_entries(
         after: datetime | None = Query(None),
         before: datetime | None = Query(None),
         hashtags: list[str] | None = Query(None),
+        search: str | None = Query(None),
         sort: str = Query('desc', pattern='^(asc|desc)$'),
         limit: int = Query(30, ge=1, le=100)
 ):
@@ -24,7 +26,6 @@ def list_entries(
         base_query = base_query.where(FeedEntry.published_at > after)
     if before:
         base_query = base_query.where(FeedEntry.published_at < before)
-
     if hashtags:
         base_query = base_query.where(FeedEntry.hashtags.contains(hashtags))
 
@@ -32,10 +33,13 @@ def list_entries(
     total = session.exec(count_query).one()
 
     query = base_query
-    if sort == "asc":
-        query = query.order_by(FeedEntry.published_at.asc())
+    if search:
+        query = query.order_by(FeedEntry.embedding.cosine_distance(embedder.encode(search)))
     else:
-        query = query.order_by(FeedEntry.published_at.desc())
+        if sort == "asc":
+            query = query.order_by(FeedEntry.published_at.asc())
+        else:
+            query = query.order_by(FeedEntry.published_at.desc())
     query = query.limit(limit)
 
     entries = list(session.exec(query).all())
