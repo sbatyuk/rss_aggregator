@@ -1,0 +1,42 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: rss_aggregator
+      POSTGRES_USER: rss_aggregator
+      POSTGRES_PASSWORD: rss_aggregator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  init-db:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: ["python", "scripts/init_db.py"]
+    profiles:
+      - init
+
+  api:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    command: [ "fastapi", "dev", "--host", "0.0.0.0", "src/rss_aggregator/api/main.py" ]
+
+  ingestion:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: [ "python", "-m", "rss_aggregator.ingestion.main" ]
+
+volumes:
+  pgdata:
