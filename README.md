@@ -29,7 +29,7 @@ hashtags, and semantic search.
 By default, the endpoint returns 30 entries sorted by publication date in descending order:
 
 ```shell
-curl http://localhost:8000/api/entries/ | jq
+curl 'http://localhost:8000/api/entries/' | jq
 ```
 
 This can be customized using the following params:
@@ -43,7 +43,7 @@ To implement infinite scroll, we can simply add a `before` param set to the publ
 previous page:
 
 ```shell
-curl http://localhost:8000/api/entries/?before=2025-06-29T18:52:21Z | jq
+curl 'http://localhost:8000/api/entries/?before=2025-06-29T18:52:21Z' | jq
 ```
 
 ### Hashtags
@@ -51,7 +51,7 @@ curl http://localhost:8000/api/entries/?before=2025-06-29T18:52:21Z | jq
 The entries endpoint allows filtering by a list of hashtags. Entries must include all specified hashtags to match:
 
 ```shell
-curl http://localhost:8000/api/entries/?hashtags=ai&hashtags=openai | jq
+curl 'http://localhost:8000/api/entries/?hashtags=ai&hashtags=openai' | jq
 ```
 
 ### Semantic Search
@@ -59,7 +59,7 @@ curl http://localhost:8000/api/entries/?hashtags=ai&hashtags=openai | jq
 The endpoint supports semantic search using vector similarity over entry titles and summaries:
 
 ```shell
-curl http://localhost:8000/api/entries/?search=ai+research&limit=5 | jq
+curl 'http://localhost:8000/api/entries/?search=ai+research&limit=5' | jq
 ```
 
 ## Architecture
