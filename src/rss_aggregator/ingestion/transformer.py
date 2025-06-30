@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 def transform(raw_feeds) -> list[FeedEntry]:
     latest_published_at = get_latest_published_at_per_feed()
     feed_entries = []
+    feed_entries_without_hashtags = []
 
     for feed_id, raw_feed in raw_feeds:
         if not raw_feed:
@@ -28,10 +29,21 @@ def transform(raw_feeds) -> list[FeedEntry]:
             try:
                 feed_entry = transform_raw_entry(feed_id, raw_entry)
                 if feed_id not in latest_published_at or feed_entry.published_at >= latest_published_at[feed_id]:
-                    enrich_feed_entry(raw_entry, feed_entry)
                     feed_entries.append(feed_entry)
-            except Exception as e:
-                logger.exception(f"Failed to process entry (link={feed_entry.link}) from feed '{feed_id}': {e}")
+                    if not feed_entry.hashtags:
+                        feed_entries_without_hashtags.append(feed_entry)
+            except Exception:
+                logger.exception(f"Failed to process entry (link={feed_entry.link}) from feed '{feed_id}'")
+
+    try:
+        add_hashtags(feed_entries_without_hashtags)
+    except Exception:
+        logger.exception('Failed to add hashtags')
+
+    try:
+        add_embeddings(feed_entries)
+    except Exception:
+        logger.exception('Failed to add embeddings')
 
     feed_entries = sorted(feed_entries, key=lambda e: e.published_at)
 
@@ -44,18 +56,9 @@ def transform_raw_entry(feed_id: str, raw_entry: FeedParserDict) -> FeedEntry:
         title=html.unescape(raw_entry.title),
         link=raw_entry.link,
         published_at=struct_time_to_datetime(raw_entry.published_parsed),
-        summary=html.unescape(raw_entry.summary)
+        summary=html.unescape(raw_entry.summary),
+        hashtags=normalize_tags(raw_entry.get('tags', []))
     )
-
-
-def enrich_feed_entry(raw_entry: FeedParserDict, feed_entry: FeedEntry) -> None:
-    text = f'{feed_entry.title}. {feed_entry.summary}'
-
-    feed_entry.hashtags = normalize_tags(raw_entry.get('tags', []))
-    if not feed_entry.hashtags:
-        feed_entry.hashtags = generate_tags(text)
-
-    feed_entry.embedding = embedder.encode(text).tolist()
 
 
 def get_latest_published_at_per_feed() -> dict[str, datetime.datetime]:
@@ -76,6 +79,22 @@ def normalize_tags(raw_tags: list[dict]) -> list[str]:
     return [slugify(tag['term']) for tag in raw_tags if tag.get('term')]
 
 
-def generate_tags(text: str) -> list[str]:
-    keywords = keyword_extractor.extract_keywords(text, top_n=3)
-    return [slugify(kw) for kw, _ in keywords]
+def add_hashtags(feed_entries) -> None:
+    texts = feed_entries_to_texts(feed_entries)
+    keywords = keyword_extractor.extract_keywords(texts, top_n=3)
+    if len(feed_entries) == 1:
+        keywords = [keywords]
+
+    for feed_entry, hashtags in zip(feed_entries, keywords):
+        feed_entry.hashtags = [slugify(ht) for ht, _ in hashtags]
+
+
+def add_embeddings(feed_entries):
+    texts = feed_entries_to_texts(feed_entries)
+    embeddings = embedder.encode(texts)
+    for feed_entry, embedding in zip(feed_entries, embeddings):
+        feed_entry.embedding = embedding
+
+
+def feed_entries_to_texts(feed_entries):
+    return [f"{entry.title}. {entry.summary}" for entry in feed_entries]
