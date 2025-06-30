@@ -1,10 +1,6 @@
-import logging
-
 from rss_aggregator.ingestion.fetcher import fetch_all_feeds
 from rss_aggregator.ingestion.loader import save
 from rss_aggregator.ingestion.transformer import transform
-
-logger = logging.getLogger(__name__)
 
 
 async def run():
