@@ -79,7 +79,8 @@ consists of the following steps:
     * hashtag generation (using [KeyBERT](https://github.com/MaartenGr/KeyBERT)) for entries that do not have them
       originally
     * vector embedding generation (using [sentence-transformers](https://github.com/UKPLab/sentence-transformers/))
-      based on entry title and summary to support semantic search via Postgresql pgvector extension
+      based on entry title and summary to support semantic search via
+      Postgresql [pgvector](https://github.com/pgvector/pgvector) extension
 3. Loading `FeedEntries` into Postgresql DB. As a final deduplication precaution, `FeedEntry.link` column has a
    unique constraint (the assumption is that every entry has a unique link) and insertion logic leverages Postgresql
    `ON CONFLICT DO NOTHING` feature.
@@ -91,8 +92,8 @@ pipeline recovery is guaranteed by `restart: always` in Docker compose service d
 ### API
 
 API is implemented as a simple FastAPI app with a single `/api/entries` endpoint. Query parameters are translated into
-SQL queries using SQLModel. Hashtag filtering uses Postgres ARRAY containment, and semantic search leverages pgvector
-for vector similarity.
+SQL queries using [SQLModel](https://sqlmodel.tiangolo.com). Hashtag filtering uses Postgres ARRAY containment, and
+semantic search leverages pgvector for vector similarity.
 
 ## Technical Considerations
 
