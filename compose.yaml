@@ -9,6 +9,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: always
 
   init-db:
     build: .
@@ -29,6 +30,7 @@ services:
     ports:
       - "8000:8000"
     command: [ "fastapi", "dev", "--host", "0.0.0.0", "src/rss_aggregator/api/main.py" ]
+    restart: always
 
   ingestion:
     build: .
@@ -37,6 +39,7 @@ services:
     env_file:
       - .env
     command: [ "python", "-m", "rss_aggregator.ingestion.main" ]
+    restart: always
 
 volumes:
   pgdata:

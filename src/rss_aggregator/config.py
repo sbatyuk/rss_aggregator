@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     database_url: str = None
     fetch_max_retries: int = 3
     fetch_retry_delay_seconds: int = 2
+    ingestion_interval_minutes: int = 60
 
     class Config:
         env_file = BASE_DIR / ".env"
