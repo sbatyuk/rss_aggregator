@@ -5,8 +5,8 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from rss_aggregator.db import get_session
-from rss_aggregator.nlp import embedder
 from rss_aggregator.models import FeedEntry, FeedEntriesResponse
+from rss_aggregator.nlp import embedder
 
 router = APIRouter(prefix='/entries', tags=['entries'])
 

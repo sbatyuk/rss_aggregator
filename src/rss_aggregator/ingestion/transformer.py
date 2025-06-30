@@ -9,8 +9,8 @@ from slugify import slugify
 from sqlalchemy import select, func
 
 from rss_aggregator.db import SessionLocal
-from rss_aggregator.nlp import embedder, keyword_extractor
 from rss_aggregator.models import FeedEntry
+from rss_aggregator.nlp import embedder, keyword_extractor
 
 logger = logging.getLogger(__name__)
 

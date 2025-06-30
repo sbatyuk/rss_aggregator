@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from rss_aggregator.api.entries import router as entries_router
 
 app = FastAPI(

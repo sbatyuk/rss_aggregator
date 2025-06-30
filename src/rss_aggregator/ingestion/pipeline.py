@@ -11,6 +11,3 @@ async def run():
     raw_feeds = await fetch_all_feeds()
     feed_entries = transform(raw_feeds)
     save(feed_entries)
-
-
-
